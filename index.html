@@ -1,1 +1,113 @@
 
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#050505">
+  <title>01 — ORDER</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #050505;
+    }
+
+    body {
+      touch-action: manipulation;
+    }
+
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+<script>
+const COLS = 17;
+const ROWS = 29;
+
+let dots = [];
+let spacingX;
+let spacingY;
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  pixelDensity(1);
+  frameRate(30);
+  noStroke();
+  createGrid();
+}
+
+function createGrid() {
+  dots = [];
+
+  const marginX = width * 0.075;
+  const marginY = height * 0.10;
+
+  spacingX = (width - marginX * 2) / (COLS - 1);
+  spacingY = (height - marginY * 2) / (ROWS - 1);
+
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      dots.push({
+        x: marginX + c * spacingX,
+        y: marginY + r * spacingY,
+        col: c,
+        row: r,
+        phase: random(TWO_PI),
+        speed: random(0.65, 1.15),
+        size: random(0.85, 1.15),
+        drift: random(0.3, 1.0)
+      });
+    }
+  }
+}
+
+function draw() {
+  background(5, 5, 5);
+
+  const t = frameCount * 0.018;
+
+  for (let d of dots) {
+    const waveX = sin(
+      d.row * 0.23 + t * d.speed + d.phase
+    );
+
+    const waveY = cos(
+      d.col * 0.19 - t * 0.7 + d.phase
+    );
+
+    const dx = waveX * spacingX * 0.12 * d.drift;
+    const dy = waveY * spacingY * 0.10 * d.drift;
+
+    const pulse = 0.5 + 0.5 * sin(
+      t * d.speed + d.phase + d.row * 0.08
+    );
+
+    const dotSize =
+      min(spacingX, spacingY) *
+      (0.13 + pulse * 0.065) *
+      d.size;
+
+    const brightness = 170 + 85 * pulse;
+
+    fill(brightness);
+    circle(d.x + dx, d.y + dy, dotSize);
+  }
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  createGrid();
+}
+</script>
+</body>
+</html>
